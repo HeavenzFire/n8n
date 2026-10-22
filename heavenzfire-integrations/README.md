@@ -8,6 +8,11 @@ Import [the workflow JSON](unified-field-guardian-health.json) into a self-hoste
 
 **Safety:** read-only. It does not run shell commands, repair services, change repositories, or perform remediation. The observed `overall=critical` state is explained by low C: drive free space (about 6.4 GB, below the Guardian's 8 GB critical threshold), not by the five core services in the Guardian service list. Host memory is also near its warning threshold. Recover disk space before installing more large runtimes.
 
+## Manifest and Windows acceptance gate
+
+- [Machine-readable integration manifest](integration-manifest.json)
+- [PowerShell acceptance script](Test-HeavenzFireIntegrations.ps1) — checks live local services, agent availability, workflow structure, and the 21 adapter contract tests.
+
 ## Local integration bridge
 
 - [Bridge server](adapter-server.cjs) — loopback-only, read-only HTTP service.

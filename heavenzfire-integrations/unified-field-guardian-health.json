@@ -89,6 +89,30 @@
               "name": "requiresAttention",
               "value": "={{ $json.overall !== 'healthy' || $json.services.some(s => s.state !== 'healthy') }}",
               "type": "boolean"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00117",
+              "name": "hostDiskState",
+              "value": "={{ $json.host.disk.state }}",
+              "type": "string"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00118",
+              "name": "hostDiskFreeGB",
+              "value": "={{ $json.host.disk.freeGB }}",
+              "type": "number"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00119",
+              "name": "findings",
+              "value": "={{ ($json.findings || []).join('; ') }}",
+              "type": "string"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00120",
+              "name": "automaticRemediationEnabled",
+              "value": "={{ $json.policy.automaticRemediation }}",
+              "type": "boolean"
             }
           ]
         },

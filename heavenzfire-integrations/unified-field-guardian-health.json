@@ -1,0 +1,152 @@
+{
+  "name": "HeavenzFire Unified Field - Guardian Health Report",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00101",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00102",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:18795/api/guardian/state",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00103",
+      "name": "Read Guardian State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00111",
+              "name": "checkedAt",
+              "value": "={{ $json.checkedAt }}",
+              "type": "string"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00112",
+              "name": "overall",
+              "value": "={{ $json.overall }}",
+              "type": "string"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00113",
+              "name": "serviceCount",
+              "value": "={{ $json.services.length }}",
+              "type": "number"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00114",
+              "name": "healthyServices",
+              "value": "={{ $json.services.filter(s => s.state === 'healthy').length }}",
+              "type": "number"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00115",
+              "name": "unhealthyServices",
+              "value": "={{ $json.services.filter(s => s.state !== 'healthy').length }}",
+              "type": "number"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00116",
+              "name": "requiresAttention",
+              "value": "={{ $json.overall !== 'healthy' || $json.services.some(s => s.state !== 'healthy') }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00104",
+      "name": "Summarize Guardian Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        760,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Guardian State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Guardian State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Guardian State": {
+      "main": [
+        [
+          {
+            "node": "Summarize Guardian Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1a8c2b10-0d37-4f84-8c52-9f62c6a00105",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

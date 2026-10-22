@@ -1,21 +1,38 @@
 # HeavenzFire Unified Field integration assets
 
-This folder contains importable workflow assets for the HeavenzFire fork of n8n. These files do not alter n8n runtime code.
+This folder contains importable workflow assets and adapter clients for the HeavenzFire fork of n8n. These additions live outside n8n core so upstream updates remain manageable.
 
 ## Guardian health report
 
-Import `unified-field-guardian-health.json` into a self-hosted n8n instance running on the same host/network namespace as HeavenzFire BrowserBridge. The workflow reads `http://127.0.0.1:18795/api/guardian/state`, normalizes service counts and attention state, and is configured for manual execution and a five-minute schedule. It is imported inactive; review it before activation.
+Import `unified-field-guardian-health.json` into a self-hosted n8n instance running on the same host/network namespace as HeavenzFire BrowserBridge. It reads `http://127.0.0.1:18795/api/guardian/state`, preserves the full Guardian payload, and summarizes service counts, disk state/free space, findings, and whether remediation is enabled. It is configured for manual execution and a five-minute schedule but remains inactive by default.
 
-**Safety:** read-only. It does not run shell commands, repair services, change repositories, or perform remediation. The current Guardian endpoint has reported `overall=critical`; diagnose that status before considering automation beyond observation.
+**Safety:** read-only. It does not run shell commands, repair services, change repositories, or perform remediation. The observed `overall=critical` state is explained by low C: drive free space (about 6.4 GB, below the Guardian's 8 GB critical threshold), not by the five services in the service list. Recover disk space before installing more large runtimes.
 
-## Upstream projects tracked separately
+## Adapter clients
 
-- OpenSwarm fork: https://github.com/HeavenzFire/openswarm (MIT)
-- Cognithor fork: https://github.com/HeavenzFire/cognithor (Apache-2.0)
-- SOMI fork: https://github.com/HeavenzFire/Somi (no license detected; code integration requires permission/license clarification)
+- [Agent adapters](adapters/agent-adapters.cjs) — documented HTTP clients for OpenSwarm and Cognithor, loopback-only by default, bounded timeouts, explicit per-call approval required for task dispatch.
+- [Adapter tests](adapters/agent-adapters.test.cjs)
+- [Integration registry](adapters/registry.cjs) — manifest reader, local service probes, bounded task-envelope validation.
+- [Registry tests](adapters/registry.test.cjs)
 
-The upstream projects are not merged into n8n core. They should be integrated through tested adapters after reviewing API boundaries, dependencies, licenses, and threat models.
+The adapters have contract tests with mocked responses; they have **not** yet completed live end-to-end dispatch because the OpenSwarm and Cognithor runtimes are not running on this PC. OpenSwarm's default host port is 18767 because 8765 is already used by the existing QuantumSolver server and 18766 by the HeavenzFire device bridge. OpenSwarm's container port remains 8765; map host 18767 to container 8765 when deploying it. Cognithor defaults to 8741.
 
-## Local runtime note
+The clients do not install or start either upstream runtime. Remote endpoints are blocked unless `HEAVENZFIRE_ALLOW_REMOTE_AGENT_ENDPOINTS=1` is deliberately configured after a network-boundary review. OpenSwarm dispatch also requires `OPENSWARM_API_KEY`. SOMI remains excluded from code integration until its license/permission status is clarified.
 
-As of 2026-10-22, `http://127.0.0.1:5678/healthz` did not respond on the user's PC, so the workflow has been prepared for import but has not been executed by a running n8n instance.
+Run the contract suite from the local Integrations folder:
+
+```powershell
+node --test adapters/registry.test.cjs adapters/agent-adapters.test.cjs
+```
+
+## Upstream projects
+
+- [OpenSwarm fork](https://github.com/HeavenzFire/openswarm) — MIT, early alpha.
+- [Cognithor fork](https://github.com/HeavenzFire/cognithor) — Apache-2.0, pre-v1.0 beta.
+- [SOMI fork](https://github.com/HeavenzFire/Somi) — no license detected; permission/license clarification required before copying, modifying, or redistributing source.
+
+The upstream projects are not merged into n8n core. They remain isolated snapshots/forks behind adapters until API compatibility, dependencies, security posture, and live tests pass.
+
+## Runtime status
+
+As of 2026-10-22, n8n at `http://127.0.0.1:5678/healthz` did not respond. The workflow has been committed and structurally validated but has not been imported or executed by a live n8n instance. Gemini OAuth/live inference and distributed recovery are separate acceptance gates.

@@ -34,13 +34,13 @@
     },
     {
       "parameters": {
-        "url": "http://127.0.0.1:18795/api/guardian/state",
+        "url": "http://127.0.0.1:18790/api/integrations/health",
         "options": {
-          "timeout": 10000
+          "timeout": 15000
         }
       },
       "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00103",
-      "name": "Read Guardian State",
+      "name": "Read Integration Health",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -110,8 +110,14 @@
             },
             {
               "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00120",
-              "name": "automaticRemediationEnabled",
-              "value": "={{ $json.policy.automaticRemediation }}",
+              "name": "remediationPolicy",
+              "value": "={{ $json.remediation }}",
+              "type": "string"
+            },
+            {
+              "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00121",
+              "name": "dispatchEnabled",
+              "value": "={{ $json.dispatchEnabled }}",
               "type": "boolean"
             }
           ]
@@ -120,7 +126,7 @@
         "options": {}
       },
       "id": "1a8c2b10-0d37-4f84-8c52-9f62c6a00104",
-      "name": "Summarize Guardian Report",
+      "name": "Summarize Integration Report",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
@@ -134,7 +140,7 @@
       "main": [
         [
           {
-            "node": "Read Guardian State",
+            "node": "Read Integration Health",
             "type": "main",
             "index": 0
           }
@@ -145,18 +151,18 @@
       "main": [
         [
           {
-            "node": "Read Guardian State",
+            "node": "Read Integration Health",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read Guardian State": {
+    "Read Integration Health": {
       "main": [
         [
           {
-            "node": "Summarize Guardian Report",
+            "node": "Summarize Integration Report",
             "type": "main",
             "index": 0
           }

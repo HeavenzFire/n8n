@@ -2,13 +2,25 @@
 
 This folder contains importable workflow assets and adapter clients for the HeavenzFire fork of n8n. These additions live outside n8n core so upstream updates remain manageable.
 
-## Guardian health report
+## Guardian and integration health workflow
 
-Import `unified-field-guardian-health.json` into a self-hosted n8n instance running on the same host/network namespace as HeavenzFire BrowserBridge. It reads `http://127.0.0.1:18795/api/guardian/state`, preserves the full Guardian payload, and summarizes service counts, disk state/free space, findings, and whether remediation is enabled. It is configured for manual execution and a five-minute schedule but remains inactive by default.
+Import [the workflow JSON](unified-field-guardian-health.json) into a self-hosted n8n instance running on the same host/network namespace as the Unified Field integration bridge. It reads `http://127.0.0.1:18790/api/integrations/health`, preserves service status, disk state/free space, findings, and remediation policy. It is configured for manual execution and a five-minute schedule but remains inactive by default.
 
-**Safety:** read-only. It does not run shell commands, repair services, change repositories, or perform remediation. The observed `overall=critical` state is explained by low C: drive free space (about 6.4 GB, below the Guardian's 8 GB critical threshold), not by the five services in the service list. Recover disk space before installing more large runtimes.
+**Safety:** read-only. It does not run shell commands, repair services, change repositories, or perform remediation. The observed `overall=critical` state is explained by low C: drive free space (about 6.4 GB, below the Guardian's 8 GB critical threshold), not by the five core services in the Guardian service list. Host memory is also near its warning threshold. Recover disk space before installing more large runtimes.
 
-## Adapter clients
+## Local integration bridge
+
+- [Bridge server](adapter-server.cjs) — loopback-only, read-only HTTP service.
+- [Windows launcher](Start-IntegrationBridge.ps1) — starts it on `127.0.0.1:18790` and refuses to replace an unrelated process.
+- [Bridge tests](adapter-server.test.cjs)
+- `GET /health` — bridge health and dispatch-disabled policy.
+- `GET /api/integrations` — integration manifest.
+- `GET /api/agents/health` — live OpenSwarm and Cognithor endpoint probes.
+- `GET /api/integrations/health` — combined Guardian, local service, and agent health.
+
+The bridge binds to loopback only. It supports GET and OPTIONS only; it exposes no HTTP task-dispatch route and cannot execute arbitrary commands.
+
+## Agent adapter clients
 
 - [Agent adapters](adapters/agent-adapters.cjs) — documented HTTP clients for OpenSwarm and Cognithor, loopback-only by default, bounded timeouts, explicit per-call approval required for task dispatch.
 - [Adapter tests](adapters/agent-adapters.test.cjs)
@@ -22,7 +34,7 @@ The clients do not install or start either upstream runtime. Remote endpoints ar
 Run the contract suite from the local Integrations folder:
 
 ```powershell
-node --test adapters/registry.test.cjs adapters/agent-adapters.test.cjs
+node --test adapter-server.test.cjs adapters/registry.test.cjs adapters/agent-adapters.test.cjs
 ```
 
 ## Upstream projects

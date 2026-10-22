@@ -1,0 +1,109 @@
+{
+    "schema":  "heavenzfire.integration-manifest.v1",
+    "updated":  "2026-10-22",
+    "controlPlane":  "../FieldCore",
+    "automation":  {
+                       "name":  "n8n",
+                       "fork":  "https://github.com/HeavenzFire/n8n",
+                       "role":  "visual workflow and event automation",
+                       "localRuntimeVerified":  false,
+                       "expectedLocalHealth":  "http://127.0.0.1:5678/healthz"
+                   },
+    "integrations":  [
+                         {
+                             "name":  "OpenSwarm",
+                             "upstream":  "https://github.com/openswarm-os/openswarm",
+                             "fork":  "https://github.com/HeavenzFire/openswarm",
+                             "license":  "MIT",
+                             "status":  "fork verified; source snapshot present; HTTP adapter implemented; runtime not installed or running",
+                             "role":  "candidate decentralized agent coordination",
+                             "next":  "audit API, dependencies, threat model, and tests before adapter implementation",
+                             "sourceSnapshotPath":  "upstream/OpenSwarm",
+                             "gitMetadataIncluded":  false,
+                             "maturity":  "early alpha; upstream warns APIs may change and bugs are expected",
+                             "adapterPath":  "adapters/agent-adapters.cjs#OpenSwarm"
+                         },
+                         {
+                             "name":  "SOMI",
+                             "upstream":  "https://github.com/Somi-Project/Somi",
+                             "fork":  "https://github.com/HeavenzFire/Somi",
+                             "license":  null,
+                             "status":  "fork verified; license clarification required; not locally integrated",
+                             "role":  "candidate local-first agent, memory, and voice",
+                             "next":  "obtain explicit license/permission before copying, modifying, or redistributing code"
+                         },
+                         {
+                             "name":  "Cognithor",
+                             "upstream":  "https://github.com/Alex8791-cyber/cognithor",
+                             "fork":  "https://github.com/HeavenzFire/cognithor",
+                             "license":  "Apache-2.0",
+                             "status":  "fork verified; source snapshot present; HTTP adapter implemented; runtime not installed or running",
+                             "role":  "candidate local-first agent OS and provider/tool adapters",
+                             "next":  "audit dependencies, resource requirements, interfaces, and tests before adapter implementation",
+                             "sourceSnapshotPath":  "upstream/Cognithor",
+                             "gitMetadataIncluded":  false,
+                             "maturity":  "pre-v1.0 beta; upstream says not recommended for production deployments",
+                             "adapterPath":  "adapters/agent-adapters.cjs#Cognithor"
+                         }
+                     ],
+    "safety":  {
+                   "default":  "read-only monitoring",
+                   "noAutomaticRemediation":  true,
+                   "noCredentialCopying":  true,
+                   "preserveUpstreamRemotes":  true,
+                   "requireHumanApprovalForWrites":  true
+               },
+    "verifiedLocalServices":  [
+                                  {
+                                      "name":  "BrowserBridge",
+                                      "url":  "http://127.0.0.1:18795/health",
+                                      "lastObservedStatus":  200
+                                  },
+                                  {
+                                      "name":  "Unified Field dashboard",
+                                      "url":  "http://127.0.0.1:8800/health",
+                                      "lastObservedStatus":  200
+                                  },
+                                  {
+                                      "name":  "Local inference gateway",
+                                      "url":  "http://127.0.0.1:11800/health",
+                                      "lastObservedStatus":  200
+                                  },
+                                  {
+                                      "name":  "Micro Mind Sandbox",
+                                      "url":  "http://127.0.0.1:11811/api/health",
+                                      "lastObservedStatus":  200
+                                  },
+                                  {
+                                      "name":  "Ollama",
+                                      "url":  "http://127.0.0.1:11434/api/tags",
+                                      "lastObservedStatus":  200
+                                  },
+                                  {
+                                      "name":  "Unified Field integration bridge",
+                                      "url":  "http://127.0.0.1:18790/health",
+                                      "lastObservedStatus":  200,
+                                      "mode":  "read-only",
+                                      "dispatchEnabled":  false
+                                  }
+                              ],
+    "knownBlockers":  [
+                          "C: disk free is below 8 GB Guardian critical threshold; do not install large dependency trees until storage is recovered",
+                          "n8n runtime is not running on port 5678; workflow is committed and validated but not executed live",
+                          "OpenSwarm and Cognithor adapter clients are contract-tested with mocks; actual runtimes are not installed or running",
+                          "OpenSwarm default host port is 18767 because 8765 is occupied by QuantumSolver and 18766 by the HeavenzFire device bridge",
+                          "SOMI code integration is blocked pending license clarification",
+                          "Gemini OAuth and live inference remain unverified"
+                      ],
+    "localAdapterBridge":  {
+                               "baseUrl":  "http://127.0.0.1:18790",
+                               "health":  "/health",
+                               "integrations":  "/api/integrations",
+                               "agentsHealth":  "/api/agents/health",
+                               "combinedHealth":  "/api/integrations/health",
+                               "writeRoutes":  false,
+                               "dispatchEnabled":  false
+                           }
+}
+
+[executed on device: ZDH (77b98796-cf81-45a3-96ca-7c08c8e2b595)]
